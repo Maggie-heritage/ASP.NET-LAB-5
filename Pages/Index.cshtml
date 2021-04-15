@@ -1,0 +1,49 @@
+﻿@page "/blog/"
+@model BlazorServerExample.Pages.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.BlogEntry[0].Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BlogEntry[0].Content)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BlogEntry[0].Time)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.BlogEntry)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Content)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Time)
+                </td>
+                <td>
+                    <a asp-page="./Edit" asp-route-id="@item.BlogEntryId">Edit</a> |
+                    <a asp-page="./Details" asp-route-id="@item.BlogEntryId">Details</a> |
+                    <a asp-page="./Delete" asp-route-id="@item.BlogEntryId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

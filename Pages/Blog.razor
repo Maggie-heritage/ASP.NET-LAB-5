@@ -1,0 +1,86 @@
+@page "/blog"
+@using Models
+@using Microsoft.EntityFrameworkCore
+@using Data
+@inject IDbContextFactory<BlogContext> ContextFactory
+@inject UserDataService UserData
+
+<h1 >Blog</h1><hr />
+
+@UserData.Name
+
+
+<div>
+   <input id="tt" placeholder="Title" @bind="title" /><br /><br />
+</div>
+<div>
+    <textarea placeholder="Content" @bind="content"></textarea>
+    <button @onclick="AddEntry">Submit </button>
+</div>
+<hr />
+<ul class="blog">
+    @foreach (BlogEntry entry in blogs)
+    {
+    <li>
+        
+        <span id="title">Title: @entry.Title </span><br />
+        Post No.: @entry.BlogEntryId<br />        
+            Content: @((MarkupString)entry.Content)
+            <button @onclick="() => DeleteEntry(entry)">Delete </button>
+        <hr />
+    </li>
+    }
+</ul>
+@code {
+    private string title, content;
+    private List<BlogEntry> blogs = new List<BlogEntry>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+        UserData.ComponentCount++;
+        using var ctx = ContextFactory.CreateDbContext();
+        blogs.AddRange(await ctx.Entries.OrderByDescending(e => e.Time).ToListAsync());
+    }
+
+
+
+
+
+    private async Task AddEntry()
+    {
+        if (!string.IsNullOrWhiteSpace(title))
+        {
+
+            var entry = new BlogEntry { Title = title, Content = content, Time =                            DateTime.Now };
+            int numChanges = 0;
+            using (var ctx = ContextFactory.CreateDbContext())
+            {
+                ctx.Entries.Add(entry);
+                numChanges = await ctx.SaveChangesAsync();
+            }
+
+            if (numChanges > 0)
+            {
+                blogs.Insert(0, entry);
+                title = string.Empty;
+                content = "";
+            }
+        }
+    }
+
+
+    private async Task DeleteEntry(BlogEntry blogEntry)
+    {
+
+        using (var ctx = ContextFactory.CreateDbContext())
+        {
+            ctx.Entries.Remove(blogEntry);
+            ctx.SaveChanges();
+
+        }
+        StateHasChanged();
+
+    }
+
+}
